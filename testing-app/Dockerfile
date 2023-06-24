@@ -1,4 +1,4 @@
-FROM php:8.2-fpm-bookworm as php
+FROM php:8.1-fpm as php
 
 ENV PHP_OPCACHE_ENABLE=1
 ENV PHP_OPCACHE_ENABLE_CLI=0
@@ -9,7 +9,6 @@ RUN usermod -u 1000 www-data
 
 COPY --chown=www-data:www-data . .
 
-
 RUN apt-get update -y
 RUN apt-get install -y \ 
     build-essential libpng-dev libfreetype6-dev \
@@ -17,6 +16,9 @@ RUN apt-get install -y \
     libjpeg62-turbo-dev vim git curl libzip-dev libgd-dev \ 
     unzip libpq-dev libcurl4-gnutls-dev zlib1g-dev libonig5\
     nginx nano net-tools nmap traceroute iputils-ping mc wget automake libtool
+
+RUN curl -sL https://deb.nodesource.com/setup_20.x | bash -
+RUN apt-get install -y nodejs 
 
 
 RUN mkdir /tmp/oniguruma && wget -c https://github.com/kkos/oniguruma/archive/refs/tags/v6.9.8.tar.gz -O - | tar -xz -C /tmp/oniguruma/
@@ -42,8 +44,11 @@ COPY ./docker/php/php-fpm.conf /usr/local/etc/php-fpm.d/www.conf
 COPY ./docker/php/opcache.ini /usr/local/etc/php/conf.d/opcache.ini
 COPY ./docker/nginx/nginx.conf /etc/nginx/nginx.conf
 
-RUN curl -sL https://deb.nodesource.com/setup_20.x | bash -
-RUN apt-get install -y nodejs 
+
+# FROM node:latest
+
+# RUN curl -sL https://deb.nodesource.com/setup_20.x | bash -
+# RUN apt-get install -y nodejs 
 
 COPY --from=composer:2.5.8 /usr/bin/composer /usr/bin/composer
 
